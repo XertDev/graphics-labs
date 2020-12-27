@@ -1,0 +1,28 @@
+{
+  "name": "graphic-lab-project",
+  "version": "1.0.0",
+  "description": "graphic lab project",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "start:open": "webpack-dev-server --open",
+    "build": "webpack --mode=production"
+  },
+  "keywords": [],
+  "author": "Omoliweeek & Xert",
+  "license": "MIT",
+  "devDependencies": {
+    "awesome-typescript-loader": "latest",
+    "css-loader": "latest",
+    "html-webpack-plugin": "latest",
+    "progress-bar-webpack-plugin": "latest",
+    "style-loader": "latest",
+    "typescript": "latest",
+    "webpack": "latest",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "latest"
+  },
+  "dependencies": {
+    "three": "latest"
+  }
+}
