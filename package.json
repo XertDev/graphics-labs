@@ -17,12 +17,15 @@
     "html-webpack-plugin": "latest",
     "progress-bar-webpack-plugin": "latest",
     "style-loader": "latest",
+    "file-loader": "latest",
     "typescript": "latest",
     "webpack": "latest",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "latest"
+    "webpack-dev-server": "latest",
+    "@types/cannon": "latest"
   },
   "dependencies": {
-    "three": "latest"
+    "three": "latest",
+    "cannon": "latest"
   }
 }

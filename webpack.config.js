@@ -33,6 +33,16 @@ module.exports = {
         type: 'asset/resource'
       },
       {
+        type: 'javascript/auto',
+        test: /\.json$/i,
+        include: [resolve(__dirname, 'src/assets/fonts')],
+        use: [
+          {
+            loader: 'file-loader'
+          }
+        ]
+      },
+      {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader'],
       },

@@ -11,6 +11,14 @@ const pz = require("../assets/images/pz.png");
 export class BoardSceneContainer extends SceneContainer {
     constructor() {
         super();
+
+    };
+
+    update(deltaTime: number): void {
+        this._camera.rotateY(0.008);
+    };
+
+    init() {
         {
             const loader = new THREE.CubeTextureLoader();
             this._scene.background = loader.load([
@@ -36,9 +44,6 @@ export class BoardSceneContainer extends SceneContainer {
 
         this._scene.add(light);
         this._scene.add(light2);
-    };
-
-    update(deltaTime: number): void {
-        this._camera.rotateY(0.008);
-    };
+        return Promise.resolve();
+    }
 }
