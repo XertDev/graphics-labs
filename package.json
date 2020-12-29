@@ -25,7 +25,8 @@
     "@types/cannon": "latest"
   },
   "dependencies": {
-    "three": "latest",
-    "cannon": "latest"
+    "cannon": "latest",
+    "peerjs": "latest",
+    "three": "latest"
   }
 }

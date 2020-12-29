@@ -1,4 +1,4 @@
-import {BufferGeometry, Geometry, Material, Mesh, default as THREE} from "three";
+import {BufferGeometry, Geometry, Material, Mesh, Vector3} from "three";
 import {Body} from "cannon"
 
 export default class BodyMesh <
@@ -7,5 +7,5 @@ export default class BodyMesh <
     > extends Mesh<TGeometry, TMaterial> {
 
     body?: Body;
-    size?: THREE.Vector3;
+    size?: Vector3;
 };

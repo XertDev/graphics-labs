@@ -19,5 +19,11 @@ export default abstract class OptionNode {
 
     abstract fall(): void;
 
+    onDestroy(): void {};
+
+    visible(): boolean {
+        return true;
+    }
+
     abstract update(deltaTime: number): void;
 }

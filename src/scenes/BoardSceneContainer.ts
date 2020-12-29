@@ -1,5 +1,6 @@
 import * as THREE from "three/src/Three";
 import {SceneContainer} from "../scene_manager/SceneContainer";
+import Game from "../Game";
 
 const nx = require("../assets/images/nx.png");
 const ny = require("../assets/images/ny.png");
@@ -9,8 +10,8 @@ const py = require("../assets/images/py.png");
 const pz = require("../assets/images/pz.png");
 
 export class BoardSceneContainer extends SceneContainer {
-    constructor() {
-        super();
+    constructor(game: Game) {
+        super(game);
 
     };
 

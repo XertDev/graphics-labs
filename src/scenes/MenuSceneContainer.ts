@@ -3,16 +3,21 @@ import * as Cannon from "cannon"
 import {SceneContainer} from "../scene_manager/SceneContainer";
 import JellyMenu from "../bouncing_menu/JellyMenu";
 import CallbackMenuOption from "../bouncing_menu/menu_config/CallbackMenuOption";
-
 // @ts-ignore
 import fontURL from "../assets/fonts/droid_sans_mono_regular.typeface.json";
+import LabelMenuOption from "../bouncing_menu/menu_config/LabelMenuOption";
+import Game from "../Game";
+
+const nz = require("../assets/images/nz.png");
 
 export class MenuSceneContainer extends SceneContainer {
     private _menu: JellyMenu;
     private _world: Cannon.World;
+    private _textGeometryParams: THREE.TextGeometryParameters;
+    private _menuTransition: () => void;
 
-    constructor() {
-        super();
+    constructor(game: Game) {
+        super(game);
     }
 
     public init() {
@@ -31,9 +36,10 @@ export class MenuSceneContainer extends SceneContainer {
 
 
         const fontLoader = new THREE.FontLoader();
+        this._scene.background = new THREE.TextureLoader().load(nz);
 
         return fontLoader.loadAsync(fontURL).then(responseFont => {
-            const textGeometryParams: THREE.TextGeometryParameters = {
+            this._textGeometryParams  = {
                 font: responseFont,
                 size: 3,
                 height: 0.4,
@@ -44,11 +50,47 @@ export class MenuSceneContainer extends SceneContainer {
                 bevelOffset: 0,
                 bevelSegments: 10
             };
-            this._menu = new JellyMenu(this._scene, this._camera, [
-                new CallbackMenuOption("Tescikowe", ()=>{}, new THREE.Color("orange"),textGeometryParams ),
-                new CallbackMenuOption("Test", ()=>{}, new THREE.Color("orange"),textGeometryParams ),
-            ], 1, this._world)
+            this.initMainMenu();
         })
+    }
+
+    private initMainMenu(): void {
+        this._menu = new JellyMenu(this._scene, this._camera, [
+            new LabelMenuOption("SuperGra", new THREE.Color("blue"), this._textGeometryParams),
+            new CallbackMenuOption("HostGame", new THREE.Color("orange"), this._textGeometryParams, () => {
+                this.transiteMenu(() => this.initHostMenu());
+            }),
+            new CallbackMenuOption("JoinGame", new THREE.Color("orange"), this._textGeometryParams, () => {
+                this.transiteMenu(() => this.initJoinMenu());
+            }),
+        ], 1, this._world)
+    }
+
+    private initHostMenu(): void {
+        this._menu = new JellyMenu(this._scene, this._camera, [
+            new LabelMenuOption("YourKey", new THREE.Color("blue"), this._textGeometryParams),
+            new LabelMenuOption(this._game.getInstanceID(), new THREE.Color("cyan"), this._textGeometryParams),
+            new CallbackMenuOption("Back", new THREE.Color("red"), this._textGeometryParams, () => {
+                this.transiteMenu(() => this.initMainMenu());
+            })
+        ], 1, this._world)
+    }
+
+    private initJoinMenu(): void {
+        this._menu = new JellyMenu(this._scene, this._camera, [
+            new LabelMenuOption("InsertKey", new THREE.Color("blue"), this._textGeometryParams),
+            new CallbackMenuOption("Back", new THREE.Color("red"), this._textGeometryParams, () => {
+                this.transiteMenu(() => this.initMainMenu());
+            })
+        ], 1, this._world)
+    }
+
+    private transiteMenu(menuInitializer: () => void) {
+        this._menuTransition = (() => {
+            this._menuTransition = null;
+            this._menu.onDestroy();
+            setTimeout(() => menuInitializer(), 100);
+        });
     }
 
     private setupLights() {
@@ -70,6 +112,11 @@ export class MenuSceneContainer extends SceneContainer {
 
         // todo: change for real time
         this._world.step(1/60);
+        if(this._menuTransition) {
+            if(!this._menu.visible()) {
+                this._menuTransition();
+            }
+        }
     }
 
     onMouseMove(event: MouseEvent): void {
