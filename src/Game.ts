@@ -1,11 +1,11 @@
 import {SceneManager} from "./scene_manager/SceneManager";
-import Peer from "peerjs";
 import {MenuSceneContainer} from "./scenes/MenuSceneContainer";
+import ConnectionController from "./connection_controller/ConnectionController";
 
 
 export default class Game {
     private _instanceID: string;
-    private _peer: Peer;
+    private _connectionController: ConnectionController;
     private _sceneManager: SceneManager;
 
     constructor(gameContainer: HTMLElement) {
@@ -13,13 +13,14 @@ export default class Game {
         window.crypto.getRandomValues(randomBytes);
         this._instanceID =  Array.from(randomBytes).map(value => ("00" + value.toString(16)).slice(-2)).join("");
         console.log(this._instanceID);
-        this._peer = new Peer("agh-bomb-it-"+this._instanceID);
+        this._connectionController = new ConnectionController(this._instanceID);
 
         this._sceneManager = new SceneManager(gameContainer);
     }
 
     public init(): Promise<void> {
         document.addEventListener("click", (e) => this._sceneManager.onClick(e));
+        document.addEventListener("keyup", (e) => this._sceneManager.onKeyUp(e));
         window.addEventListener('mousemove', (e) => this._sceneManager.onMouseMove(e));
 
         return this._sceneManager.setSceneContainer(new MenuSceneContainer(this))
@@ -36,5 +37,9 @@ export default class Game {
 
     public getInstanceID(): string {
         return this._instanceID;
+    }
+
+    public getConnectionController(): ConnectionController {
+        return this._connectionController;
     }
 }

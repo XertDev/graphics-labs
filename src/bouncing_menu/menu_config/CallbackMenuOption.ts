@@ -1,14 +1,12 @@
-import * as THREE from "three/src/Three";
-import MenuOption from "./MenuOption";
 import {Color, TextGeometryParameters} from "three/src/Three";
+import LabelMenuOption from "./LabelMenuOption";
 
-export default class CallbackMenuOption extends MenuOption{
+export default class CallbackMenuOption extends LabelMenuOption{
     name: string;
     callback: () => void;
-    textSettings: THREE.TextGeometryParameters;
 
     constructor(name: string, color: Color, textSettings: TextGeometryParameters, callback: () => void) {
-        super(color);
+        super(name, color, textSettings);
         this.name = name;
         this.callback = callback;
         this.textSettings = textSettings;

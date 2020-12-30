@@ -44,7 +44,7 @@ export default class LabelOptionNode extends TextOptionNode {
         });
 
         this._endConstraint= new Cannon.ConeTwistConstraint(this._endAnchor, endLetter.body, {
-            pivotA: new Cannon.Vec3(-endLetter.size.x/3 - 0.2, 0.2, 0.2),
+            pivotA: new Cannon.Vec3(-endLetter.size.x/3 - 0.5, 0.2, 0.2),
             pivotB: new Cannon.Vec3(
                 0,
                 endLetter.geometry.boundingSphere.center.y,

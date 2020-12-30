@@ -3,10 +3,12 @@ import * as Cannon from "cannon"
 import {SceneContainer} from "../scene_manager/SceneContainer";
 import JellyMenu from "../bouncing_menu/JellyMenu";
 import CallbackMenuOption from "../bouncing_menu/menu_config/CallbackMenuOption";
-// @ts-ignore
-import fontURL from "../assets/fonts/droid_sans_mono_regular.typeface.json";
 import LabelMenuOption from "../bouncing_menu/menu_config/LabelMenuOption";
 import Game from "../Game";
+import TextInsertMenuOption from "../bouncing_menu/menu_config/TextInsertMenuOption";
+
+// @ts-ignore
+import fontURL from "../assets/fonts/droid_sans_mono_regular.typeface.json";
 
 const nz = require("../assets/images/nz.png");
 
@@ -74,15 +76,23 @@ export class MenuSceneContainer extends SceneContainer {
                 this.transiteMenu(() => this.initMainMenu());
             })
         ], 1, this._world)
+        this._game.getConnectionController().startHosting();
     }
 
     private initJoinMenu(): void {
         this._menu = new JellyMenu(this._scene, this._camera, [
             new LabelMenuOption("InsertKey", new THREE.Color("blue"), this._textGeometryParams),
+            new TextInsertMenuOption(
+                "_", 6,
+                new THREE.Color("green"), new THREE.Color("yellow"), this._textGeometryParams,
+                value => {
+                    console.log(value);
+                    this._game.getConnectionController().connectToHost(value);
+            }),
             new CallbackMenuOption("Back", new THREE.Color("red"), this._textGeometryParams, () => {
                 this.transiteMenu(() => this.initMainMenu());
             })
-        ], 1, this._world)
+        ], 2, this._world)
     }
 
     private transiteMenu(menuInitializer: () => void) {
@@ -119,8 +129,11 @@ export class MenuSceneContainer extends SceneContainer {
         }
     }
 
-    onMouseMove(event: MouseEvent): void {
+    onKeyUp(event: KeyboardEvent): void {
+        this._menu.onKeyUp(event);
     }
+
+
     onClick(event: MouseEvent): void {
         this._menu.onClick(event);
     }

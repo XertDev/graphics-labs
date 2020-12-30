@@ -47,6 +47,12 @@ export class SceneManager {
         }
     }
 
+    onKeyUp(event: KeyboardEvent): void {
+        if(this._sceneContainer) {
+            this._sceneContainer.onKeyUp(event);
+        }
+    }
+
     onClick(event: MouseEvent) : void {
         if(this._sceneContainer) {
             this._sceneContainer.onClick(event);

@@ -26,5 +26,8 @@ export abstract class SceneContainer {
     onClick(event: MouseEvent) : void {
     }
 
+    onKeyUp(event: KeyboardEvent): void {
+    }
+
     update(deltaTime: number): void {};
 }

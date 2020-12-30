@@ -17,7 +17,9 @@ export default abstract class OptionNode {
         return false;
     }
 
-    abstract fall(): void;
+    fall(): void {
+
+    };
 
     onDestroy(): void {};
 

@@ -7,6 +7,8 @@ import set = Reflect.set;
 import LabelMenuOption from "./menu_config/LabelMenuOption";
 import LabelOptionNode from "./nodes/LabelOptionNode";
 import MenuOption from "./menu_config/MenuOption";
+import TextInsertMenuOption from "./menu_config/TextInsertMenuOption";
+import TextInsertOptionNode from "./nodes/TextInsertOptionNode";
 
 export default class JellyMenu {
     private _options = new Array<OptionNode>();
@@ -15,6 +17,9 @@ export default class JellyMenu {
     private _raycaster = new THREE.Raycaster();
     private _frustum = new THREE.Frustum();
     private _menuGroup = new THREE.Group();
+
+    private _insertOptions = new Array<TextInsertOptionNode>();
+    private _currentInsertOptionIndex = 0;
 
     constructor(scene: THREE.Scene, camera: THREE.Camera, menu: MenuOption[], offsetY: number, world: Cannon.World) {
         this._camera = camera;
@@ -28,17 +33,18 @@ export default class JellyMenu {
             let optionNode: OptionNode;
             if(option instanceof CallbackMenuOption) {
                 optionNode = new CallbackOptionNode(option, world, this._frustum);
-                this._options.push(optionNode);
-                const nodeGroup = optionNode.getGroup();
-                optionNode.translateX(-optionNode.getWidth()/2);
-                this._menuGroup.add(nodeGroup);
             } else if(option instanceof LabelMenuOption) {
                 optionNode = new LabelOptionNode(option, world, this._frustum);
-                this._options.push(optionNode);
-                const nodeGroup = optionNode.getGroup();
-                optionNode.translateX(-optionNode.getWidth()/2);
-                this._menuGroup.add(nodeGroup);
+
+            } else if(option instanceof TextInsertMenuOption) {
+                optionNode = new TextInsertOptionNode(option, world, this._frustum);
+                this._insertOptions.push(<TextInsertOptionNode>optionNode);
             }
+            this._options.push(optionNode);
+            const nodeGroup = optionNode.getGroup();
+            optionNode.translateX(-optionNode.getWidth()/2);
+            this._menuGroup.add(nodeGroup);
+
             optionsHeight += optionNode.getHeight();
         });
         const rowOffset = optionsHeight / menu.length;
@@ -68,6 +74,28 @@ export default class JellyMenu {
         this._options.forEach(option => {
             option.onDestroy();
         })
+    }
+
+    onKeyUp(event: KeyboardEvent): void {
+        if(this._insertOptions.length > 0) {
+            if(event.key === "ArrowUp") {
+                --this._currentInsertOptionIndex;
+                this._currentInsertOptionIndex %= this._insertOptions.length;
+            } else if(event.key ==="ArrowDown") {
+                ++this._currentInsertOptionIndex;
+                this._currentInsertOptionIndex %= this._insertOptions.length;
+            } else if(event.key === "Backspace") {
+                this._insertOptions[this._currentInsertOptionIndex].onKeyUp(event);
+            } else if(
+                event.key.length == 1
+                && (
+                    event.key >= "a" && event.key <= "z"
+                    || event.key >= "0" && event.key <= "9"
+                )
+            ){
+                this._insertOptions[this._currentInsertOptionIndex].onKeyUp(event);
+            }
+        }
     }
 
     public onClick(event) {

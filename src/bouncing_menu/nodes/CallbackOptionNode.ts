@@ -14,6 +14,9 @@ export default class CallbackOptionNode extends TextOptionNode {
     constructor(menuOption: CallbackMenuOption, world: Cannon.World, frustum: THREE.Frustum) {
         super(menuOption, world, frustum);
         this._callback = menuOption.callback;
+        this._letters.forEach(letter => {
+            letter.body.position.y += this.GROUND_HEIGHT * 8;
+        });
         this._ground = new Cannon.Body({
             mass: 0,
             shape: new Cannon.Box(new Cannon.Vec3(this._width * 2 + 2, this.GROUND_HEIGHT, 50)),
