@@ -1,26 +1,16 @@
 import './style.css';
 
-import {SceneManager} from "./scene_manager/SceneManager";
-import {BoardSceneContainer} from "./scenes/BoardSceneContainer";
+import Game from "./Game";
 
 const gameCanvas = <HTMLCanvasElement>document.getElementById("game_canvas");
 
-const sceneManager = new SceneManager(gameCanvas);
 
 
-let scenes = new BoardSceneContainer();
+const game = new Game(gameCanvas);
+game.init().then(() => {
+  game.run();
+});
 
 
-sceneManager.setSceneContainer(scenes);
 
 
-function animate(): void {
-  requestAnimationFrame(animate);
-  render();
-}
-
-function render(): void {
-  sceneManager.update();
-}
-
-animate();

@@ -1,8 +1,8 @@
 import * as THREE from "three/src/Three";
 import {SceneContainer} from "../scene_manager/SceneContainer";
 import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls";
-import { LineManager } from '../boards/LineManager';
 import { BoardManager } from '../boards/BoardManager';
+import Game from "../Game";
 
 const nx = require("../assets/images/nx.png");
 const ny = require("../assets/images/ny.png");
@@ -12,8 +12,12 @@ const py = require("../assets/images/py.png");
 const pz = require("../assets/images/pz.png");
 
 export class BoardSceneContainer extends SceneContainer {
-    constructor() {
-        super();
+    constructor(game: Game) {
+        super(game);
+
+    };
+
+    init() {
         {
             const loader = new THREE.CubeTextureLoader();
             this._scene.background = loader.load([
@@ -48,18 +52,10 @@ export class BoardSceneContainer extends SceneContainer {
 
         const board = new BoardManager(10, 10, this._scene);
 
-
-        // var lines = new LineManager(0, 0, 20, 1, 20, 2).makeLines();
-        // lines.forEach(line => {
-        //     this._scene.add(line);
-        // });
-
-
+        return Promise.resolve();
     };
 
     update(deltaTime: number): void {
-        // this._camera.rotateZ(0.008);
-        // this._camera.rotateX(0.008);
-        // this._camera.rotateZ(0.008);
     };
+
 }
