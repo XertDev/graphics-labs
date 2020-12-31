@@ -58,7 +58,7 @@ export class MenuSceneContainer extends SceneContainer {
 
     private initMainMenu(): void {
         this.menu = new JellyMenu(this.scene, this.camera, [
-            new LabelMenuOption("SuperGra", new THREE.Color("blue"), this.textGeometryParams),
+            new LabelMenuOption("SuperGra", new THREE.Color("blue"), this.textGeometryParams, false),
             new CallbackMenuOption("HostGame", new THREE.Color("orange"), this.textGeometryParams, () => {
                 this.transiteMenu(() => this.initHostMenu());
             }),
@@ -70,8 +70,8 @@ export class MenuSceneContainer extends SceneContainer {
 
     private initHostMenu(): void {
         this.menu = new JellyMenu(this.scene, this.camera, [
-            new LabelMenuOption("YourKey", new THREE.Color("blue"), this.textGeometryParams),
-            new LabelMenuOption(this.game.getInstanceID(), new THREE.Color("cyan"), this.textGeometryParams),
+            new LabelMenuOption("YourKey", new THREE.Color("blue"), this.textGeometryParams, false),
+            new LabelMenuOption(this.game.getInstanceID(), new THREE.Color("cyan"), this.textGeometryParams, true),
             new CallbackMenuOption("Back", new THREE.Color("red"), this.textGeometryParams, () => {
                 this.transiteMenu(() => this.initMainMenu());
             })
@@ -81,7 +81,7 @@ export class MenuSceneContainer extends SceneContainer {
 
     private initJoinMenu(): void {
         this.menu = new JellyMenu(this.scene, this.camera, [
-            new LabelMenuOption("InsertKey", new THREE.Color("blue"), this.textGeometryParams),
+            new LabelMenuOption("InsertKey", new THREE.Color("blue"), this.textGeometryParams, false),
             new TextInsertMenuOption(
                 "_", 6,
                 new THREE.Color("green"), new THREE.Color("yellow"), this.textGeometryParams,

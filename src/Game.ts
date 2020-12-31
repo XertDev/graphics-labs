@@ -1,6 +1,7 @@
 import {SceneManager} from "./scene_manager/SceneManager";
 import {BoardSceneContainer} from "./scenes/BoardSceneContainer";
 import ConnectionController from "./connection_controller/ConnectionController";
+import {MenuSceneContainer} from "./scenes/MenuSceneContainer";
 
 
 export default class Game {
@@ -23,7 +24,7 @@ export default class Game {
         document.addEventListener("keyup", (e) => this._sceneManager.onKeyUp(e));
         window.addEventListener('mousemove', (e) => this._sceneManager.onMouseMove(e));
 
-        return this._sceneManager.setSceneContainer(new BoardSceneContainer(this))
+        return this._sceneManager.setSceneContainer(new MenuSceneContainer(this))
     }
 
     private animate(): void {

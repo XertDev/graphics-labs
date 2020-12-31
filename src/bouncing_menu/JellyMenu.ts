@@ -41,11 +41,11 @@ export default class JellyMenu {
                 this._insertOptions.push(<TextInsertOptionNode>optionNode);
             }
             this._options.push(optionNode);
-            const nodeGroup = optionNode.getGroup();
-            optionNode.translateX(-optionNode.getWidth()/2);
+            const nodeGroup = optionNode.group;
+            optionNode.translateX(-optionNode.width/2);
             this._menuGroup.add(nodeGroup);
 
-            optionsHeight += optionNode.getHeight();
+            optionsHeight += optionNode.height;
         });
         const rowOffset = optionsHeight / menu.length;
         let currentOffset = optionsHeight/2;
@@ -72,7 +72,7 @@ export default class JellyMenu {
     public onDestroy(): void {
         this._scene.remove(this._menuGroup);
         this._options.forEach(option => {
-            option.onDestroy();
+            option.dispose();
         })
     }
 

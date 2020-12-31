@@ -1,14 +1,14 @@
-import * as THREE from "three/src/Three";
+import * as THREE from "three";
 
 export default abstract class OptionNode {
     protected _group: THREE.Group = new THREE.Group();
 
-    getGroup(): THREE.Group {
+    get group(): THREE.Group {
         return this._group;
-    }
+    };
 
-    abstract getHeight(): number
-    abstract getWidth(): number;
+    abstract get height(): number;
+    abstract get width(): number;
 
     abstract translateY(offset: number): void;
     abstract translateX(offset: number): void;
@@ -18,14 +18,13 @@ export default abstract class OptionNode {
     }
 
     fall(): void {
-
     };
 
-    onDestroy(): void {};
+    dispose(): void {};
 
     visible(): boolean {
         return true;
-    }
+    };
 
     abstract update(deltaTime: number): void;
 }

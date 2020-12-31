@@ -2,70 +2,75 @@ import * as Cannon from "cannon";
 import * as THREE from "three";
 import LabelMenuOption from "../menu_config/LabelMenuOption";
 import TextInsertMenuOption from "../menu_config/TextInsertMenuOption";
-import LabelOptionNode from "./LabelOptionNode";
+import HangedTextNode from "./HangedTextNode";
+import TextMenuOption from "../menu_config/TextMenuOption";
 
-export default class TextInsertOptionNode extends LabelOptionNode {
-    private _currentPos = 0;
-    private _default: string;
-    private _fullLength = 0;
-    private _value: string;
-    private _acceptable = false;
+export default class TextInsertOptionNode extends HangedTextNode {
+    private currentPos = 0;
+    private defaultValue: string;
+    private fullLength = 0;
+    private currentValue: string;
+    private acceptable = false;
 
-    private _textSettings: THREE.TextGeometryParameters;
-    private _acceptColor: THREE.Color;
-    private _color: THREE.Color;
+    private textSettings: THREE.TextGeometryParameters;
+    private acceptColor: THREE.Color;
+    private color: THREE.Color;
 
-    private _onAccept: (value: string) => void;
+    private onAccept: (value: string) => void;
 
     constructor(menuOption: TextInsertMenuOption, world: Cannon.World, frustum: THREE.Frustum) {
         super(
-            new LabelMenuOption(menuOption.defaultValue.repeat(menuOption.length), menuOption.color, menuOption.textSettings),
+            new TextMenuOption(
+                menuOption.defaultValue.repeat(menuOption.length),
+                menuOption.color,
+                menuOption.textSettings,
+            ),
             world, frustum
         );
 
-        this._textSettings = menuOption.textSettings;
-        this._value = "";
-        this._fullLength = menuOption.length;
-        this._default = menuOption.defaultValue;
-        this._color = menuOption.color;
-        this._acceptColor = menuOption.acceptColor;
-        this._onAccept = menuOption.onAccept;
+        this.textSettings = menuOption.textSettings;
+        this.currentValue = "";
+        this.fullLength = menuOption.length;
+        this.defaultValue = menuOption.defaultValue;
+        this.color = menuOption.color;
+        this.acceptColor = menuOption.acceptColor;
+        this.onAccept = menuOption.onAccept;
     }
 
     public onKeyUp(event: KeyboardEvent): void {
         if(event.key === "Backspace") {
-            if(this._currentPos > 0) {
-                --this._currentPos;
-                this.updateValue(this._currentPos, this._default);
-                this._value = this._value.slice(-1);
-                if(this._acceptable) {
-                    this._letters.forEach(letter => {
-                        letter.material = new THREE.MeshLambertMaterial({color: this._color});
+            if(this.currentPos > 0) {
+                --this.currentPos;
+                this.updateValue(this.currentPos, this.defaultValue);
+                this.currentValue = this.currentValue.slice(-1);
+                if(this.acceptable) {
+                    this.letters.forEach(letter => {
+                        letter.material = new THREE.MeshLambertMaterial({color: this.color});
                     })
                 }
-                this._acceptable = false;
+                this.acceptable = false;
             }
 
-        } else if(this._currentPos < this._fullLength) {
-            this.updateValue(this._currentPos, event.key);
-            ++this._currentPos;
-            this._value += event.key;
-            if(this._currentPos == this._fullLength) {
-                this._acceptable = true;
-                this._letters.forEach(letter => {
-                    letter.material = new THREE.MeshLambertMaterial({color: this._acceptColor});
+        } else if(this.currentPos < this.fullLength) {
+            this.updateValue(this.currentPos, event.key);
+            ++this.currentPos;
+            this.currentValue += event.key;
+            if(this.currentPos == this.fullLength) {
+                this.acceptable = true;
+                this.letters.forEach(letter => {
+                    letter.material = new THREE.MeshLambertMaterial({color: this.acceptColor});
                 })
             }
         }
     }
     onClick(intersection: THREE.Intersection): boolean {
-        for(let letter of this._letters) {
+        for(let letter of this.letters) {
             if(letter === intersection.object) {
                 const face = intersection.face;
-                if(this._acceptable) {
+                if(this.acceptable) {
                     const impulse = new Cannon.Vec3(face.normal.x, face.normal.y, face.normal.z).scale(-50);
                     letter.body.applyLocalImpulse(impulse, new Cannon.Vec3());
-                    this._onAccept(this._value);
+                    this.onAccept(this.currentValue);
                     return true;
                 } else {
                     const impulse = new Cannon.Vec3(face.normal.x, face.normal.y, face.normal.z).scale(-10);
@@ -77,8 +82,8 @@ export default class TextInsertOptionNode extends LabelOptionNode {
     }
 
     private updateValue(index:number, val: string) {
-        const letter = this._letters[index];
-        letter.geometry = new THREE.TextBufferGeometry(val, this._textSettings);
+        const letter = this.letters[index];
+        letter.geometry = new THREE.TextBufferGeometry(val, this.textSettings);
         letter.geometry.computeBoundingBox();
         letter.geometry.computeBoundingSphere();
         letter.size = letter.geometry.boundingBox.getSize(new THREE.Vector3());
@@ -89,9 +94,5 @@ export default class TextInsertOptionNode extends LabelOptionNode {
         letter.body.shapes = [];
         letter.body.addShape(letterBox, new Cannon.Vec3(center.x, center.y, center.z));
         letter.body.updateMassProperties();
-    }
-
-    public fall(): void {
-        super.fall();
     }
 }

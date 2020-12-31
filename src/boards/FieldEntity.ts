@@ -2,7 +2,7 @@ import * as THREE from "three";
 import * as Cannon from "cannon";
 
 export abstract class FieldEntity {
-    public body: Cannon.Body
+    public body: Cannon.Body;
 
     constructor(
         private scene: THREE.Scene,

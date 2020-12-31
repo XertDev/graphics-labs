@@ -2,22 +2,14 @@ import * as THREE from "three";
 import MenuOption from "./MenuOption";
 
 export default class TextInsertMenuOption extends MenuOption{
-    defaultValue: string;
-    length: number;
-    onAccept: (value: string) => void;
-    acceptColor: THREE.Color;
-
-
     constructor(
-        defaultValue: string, length: number,
-        color: THREE.Color, acceptColor: THREE.Color,
+        public readonly defaultValue: string,
+        public readonly length: number,
+        color: THREE.Color,
+        public readonly acceptColor: THREE.Color,
         textSettings: THREE.TextGeometryParameters,
-        onAccept: (value: string) => void
+        public readonly onAccept: (value: string) => void
     ) {
         super(color, textSettings);
-        this.acceptColor = acceptColor;
-        this.defaultValue = defaultValue;
-        this.length = length;
-        this.onAccept = onAccept;
     }
 }
