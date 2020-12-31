@@ -1,5 +1,3 @@
-import * as THREE from "three/src/Three"
-
 export enum BoardCellType {
   EMPTY = 0,
   DESTROYABLE = 1,

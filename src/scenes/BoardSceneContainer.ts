@@ -23,11 +23,10 @@ export class BoardSceneContainer extends SceneContainer {
     private stones = new Array<THREE.Object3D>();
     private boxes = new Array<THREE.Object3D>();
 
-    private world = new Cannon.World
+    private world = new Cannon.World();
 
     constructor(game: Game) {
         super(game);
-
     };
 
     initResources() {

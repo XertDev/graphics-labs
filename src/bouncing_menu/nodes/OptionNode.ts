@@ -1,11 +1,11 @@
 import * as THREE from "three";
+import * as Cannon from "cannon";
 
 export default abstract class OptionNode {
-    protected _group: THREE.Group = new THREE.Group();
-
-    get group(): THREE.Group {
-        return this._group;
-    };
+    protected constructor(
+        protected scene: THREE.Scene,
+        protected world: Cannon.World) {
+    }
 
     abstract get height(): number;
     abstract get width(): number;

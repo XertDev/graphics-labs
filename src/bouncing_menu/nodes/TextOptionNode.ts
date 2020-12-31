@@ -6,21 +6,20 @@ import {MeshLambertMaterial} from "three";
 import OptionNode from "./OptionNode";
 import TextMenuOption from "../menu_config/TextMenuOption";
 
-export default abstract class TextOptionNode extends OptionNode {
+export default abstract class TextOptionNode extends OptionNode{
     protected letters= new Array<BodyMesh>();
-    protected world: Cannon.World;
-    protected frustum: THREE.Frustum;
-
     protected letterMaterial = new Cannon.Material("letter");
 
     public readonly height;
     public readonly width;
 
-    protected constructor(menuOption: TextMenuOption, world: Cannon.World, frustum: THREE.Frustum) {
-        super();
+    protected constructor(
+        menuOption: TextMenuOption,
+        scene: THREE.Scene, world: Cannon.World,
+        protected frustum: THREE.Frustum
+    ) {
+        super(scene, world);
 
-        this.frustum = frustum;
-        this.world = world;
 
         let lastOffset = 0;
         let height = 0;
@@ -29,9 +28,10 @@ export default abstract class TextOptionNode extends OptionNode {
             const geometry = new THREE.TextBufferGeometry(value, menuOption.textSettings);
             geometry.computeBoundingBox();
             geometry.computeBoundingSphere();
-            const letterMesh: BodyMesh<TextBufferGeometry, MeshLambertMaterial> = new THREE.Mesh(geometry, material);
 
+            const letterMesh: BodyMesh<TextBufferGeometry, MeshLambertMaterial> = new THREE.Mesh(geometry, material);
             this.letters.push(letterMesh);
+
             letterMesh.size = geometry.boundingBox.getSize(new THREE.Vector3());
             const {x, y, z} = letterMesh.size;
             const letterBox = new Cannon.Box(new Cannon.Vec3(x / 2, y / 2, z / 2));
@@ -44,13 +44,15 @@ export default abstract class TextOptionNode extends OptionNode {
 
             const {center} = geometry.boundingSphere;
             letterMesh.body.addShape(letterBox, new Cannon.Vec3(center.x, center.y, center.z));
-            world.addBody(letterMesh.body);
+
 
             height = Math.max(y, height);
 
             letterMesh.body.position.x += lastOffset;
             lastOffset += x / 2;
-            this._group.add(letterMesh);
+
+            world.addBody(letterMesh.body);
+            this.scene.add(letterMesh);
 
             if (index > 0) {
 
@@ -94,6 +96,7 @@ export default abstract class TextOptionNode extends OptionNode {
 
     dispose() {
         this.letters.forEach(letter => {
+            this.scene.remove(letter);
             this.world.remove(letter.body);
         })
     };

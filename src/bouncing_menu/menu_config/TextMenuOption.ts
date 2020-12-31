@@ -1,5 +1,5 @@
-import MenuOption from "./MenuOption";
 import * as THREE from "three";
+import MenuOption from "./MenuOption";
 
 export default class TextMenuOption extends MenuOption {
     constructor(

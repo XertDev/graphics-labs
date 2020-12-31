@@ -4,13 +4,13 @@ import * as THREE from "three";
 import TextMenuOption from "../menu_config/TextMenuOption";
 
 export default class HangedTextNode extends TextOptionNode{
-    private startAnchor: Cannon.Body;
-    private endAnchor: Cannon.Body;
-    private startConstraint: CANNON.ConeTwistConstraint;
-    private endConstraint: CANNON.ConeTwistConstraint;
+    private readonly startAnchor: Cannon.Body;
+    private readonly endAnchor: Cannon.Body;
+    private readonly startConstraint: CANNON.ConeTwistConstraint;
+    private readonly endConstraint: CANNON.ConeTwistConstraint;
 
-    constructor(menuOption: TextMenuOption, world: Cannon.World, frustum: THREE.Frustum) {
-        super(menuOption, world, frustum);
+    constructor(menuOption: TextMenuOption, scene: THREE.Scene, world: Cannon.World, frustum: THREE.Frustum) {
+        super(menuOption, scene, world, frustum);
 
         const startLetter = this.letters[0];
         const endLetter = this.letters[this.letters.length - 1];
@@ -42,7 +42,6 @@ export default class HangedTextNode extends TextOptionNode{
                 startLetter.geometry.boundingSphere.center.z
             )
         });
-
         this.endConstraint= new Cannon.ConeTwistConstraint(this.endAnchor, endLetter.body, {
             pivotA: new Cannon.Vec3(-endLetter.size.x/3 - 0.5, 0.2, 0.2),
             pivotB: new Cannon.Vec3(

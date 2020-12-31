@@ -11,5 +11,5 @@ export default class TextInsertMenuOption extends MenuOption{
         public readonly onAccept: (value: string) => void
     ) {
         super(color, textSettings);
-    }
-}
+    };
+};

@@ -6,17 +6,18 @@ import TextOptionNode from "./TextOptionNode";
 export default class CallbackOptionNode extends TextOptionNode {
     protected ground: Cannon.Body;
     public readonly GROUND_HEIGHT = 0.1;
-    private callback: () => void;
+    private readonly callback: () => void;
 
     private groundMaterial = new Cannon.Material("ground");
-    private contact: CANNON.ContactMaterial;
+    private readonly contact: CANNON.ContactMaterial;
 
-    constructor(menuOption: CallbackMenuOption, world: Cannon.World, frustum: THREE.Frustum) {
-        super(menuOption, world, frustum);
+    constructor(menuOption: CallbackMenuOption, scene: THREE.Scene, world: Cannon.World, frustum: THREE.Frustum) {
+        super(menuOption, scene, world, frustum);
         this.callback = menuOption.callback;
         this.letters.forEach(letter => {
             letter.body.position.y += this.GROUND_HEIGHT * 8;
         });
+
         this.ground = new Cannon.Body({
             mass: 0,
             shape: new Cannon.Box(new Cannon.Vec3(this.width * 2 + 2, this.GROUND_HEIGHT, 50)),
@@ -52,7 +53,6 @@ export default class CallbackOptionNode extends TextOptionNode {
     fall(): void {
         this.world.remove(this.ground);
     }
-
 
     translateY(offset: number): void {
         super.translateY(offset);

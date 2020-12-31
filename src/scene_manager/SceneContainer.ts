@@ -3,10 +3,8 @@ import Game from "../Game";
 export abstract class SceneContainer {
     protected scene: THREE.Scene = new THREE.Scene();
     protected camera: THREE.Camera;
-    protected game: Game;
 
-    protected constructor(game: Game) {
-        this.game = game;
+    protected constructor(protected game: Game) {
     };
 
     public abstract init(): Promise<void>;

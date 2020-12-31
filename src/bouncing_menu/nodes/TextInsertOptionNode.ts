@@ -1,31 +1,30 @@
 import * as Cannon from "cannon";
 import * as THREE from "three";
-import LabelMenuOption from "../menu_config/LabelMenuOption";
 import TextInsertMenuOption from "../menu_config/TextInsertMenuOption";
 import HangedTextNode from "./HangedTextNode";
 import TextMenuOption from "../menu_config/TextMenuOption";
 
 export default class TextInsertOptionNode extends HangedTextNode {
     private currentPos = 0;
-    private defaultValue: string;
-    private fullLength = 0;
+    private readonly defaultValue: string;
+    private readonly fullLength;
     private currentValue: string;
     private acceptable = false;
 
-    private textSettings: THREE.TextGeometryParameters;
-    private acceptColor: THREE.Color;
-    private color: THREE.Color;
+    private readonly textSettings: THREE.TextGeometryParameters;
+    private readonly acceptColor: THREE.Color;
+    private readonly color: THREE.Color;
 
-    private onAccept: (value: string) => void;
+    private readonly onAccept: (value: string) => void;
 
-    constructor(menuOption: TextInsertMenuOption, world: Cannon.World, frustum: THREE.Frustum) {
+    constructor(menuOption: TextInsertMenuOption, scene: THREE.Scene, world: Cannon.World, frustum: THREE.Frustum) {
         super(
             new TextMenuOption(
                 menuOption.defaultValue.repeat(menuOption.length),
                 menuOption.color,
                 menuOption.textSettings,
             ),
-            world, frustum
+            scene, world, frustum
         );
 
         this.textSettings = menuOption.textSettings;
@@ -62,7 +61,8 @@ export default class TextInsertOptionNode extends HangedTextNode {
                 })
             }
         }
-    }
+    };
+
     onClick(intersection: THREE.Intersection): boolean {
         for(let letter of this.letters) {
             if(letter === intersection.object) {
@@ -79,20 +79,22 @@ export default class TextInsertOptionNode extends HangedTextNode {
                 }
             }
         }
-    }
+    };
 
     private updateValue(index:number, val: string) {
         const letter = this.letters[index];
         letter.geometry = new THREE.TextBufferGeometry(val, this.textSettings);
         letter.geometry.computeBoundingBox();
         letter.geometry.computeBoundingSphere();
+
         letter.size = letter.geometry.boundingBox.getSize(new THREE.Vector3());
         const {x, y, z} = letter.size;
         const letterBox = new Cannon.Box(new Cannon.Vec3(x / 2, y / 2, z / 2));
 
-        const {center} = letter.geometry.boundingSphere;
         letter.body.shapes = [];
+
+        const {center} = letter.geometry.boundingSphere;
         letter.body.addShape(letterBox, new Cannon.Vec3(center.x, center.y, center.z));
         letter.body.updateMassProperties();
-    }
-}
+    };
+};

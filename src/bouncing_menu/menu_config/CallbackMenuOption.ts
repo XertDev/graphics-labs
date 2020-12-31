@@ -1,5 +1,4 @@
 import {Color, TextGeometryParameters} from "three/src/Three";
-import LabelMenuOption from "./LabelMenuOption";
 import TextMenuOption from "./TextMenuOption";
 
 export default class CallbackMenuOption extends TextMenuOption{
