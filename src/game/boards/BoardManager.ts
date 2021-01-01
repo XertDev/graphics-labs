@@ -6,6 +6,7 @@ import { FieldEntity} from "./FieldEntity";
 import { BoardCellType } from "./Board";
 import { DestroyableFieldEntity } from './DestroyableFieldEntity';
 import { UndestroyableFieldEntity } from './UndestroyableFieldEntity';
+import AnimatedObject from "../../utils/AnimatedObject";
 
 
 export class BoardManager {
@@ -25,19 +26,38 @@ export class BoardManager {
         private world: Cannon.World,
         private stones: Array<THREE.Object3D>,
         private boxes: Array<THREE.Object3D>,
+        eagle: AnimatedObject,
         private numOfStones: number,
         private numOfBoxes: number
     ){
         this.board = new Board(this.width, this.height);
 
         this.boardGround = new BoardGround(
+            scene, world,
             this.width, this.height,
             this.CELL_SPACE, this.CELL_SIZE,
             this.BORDER,
-            this.DEPTH
+            this.DEPTH,
+            eagle
         );
 
-        scene.add(this.boardGround.getGroup());
+        this.createFullMap();
+    }
+
+    public get boardWidth() {
+        return this.boardGround.boardWidth;
+    }
+
+    public get boardHeight() {
+        return this.boardGround.boardHeight;
+    }
+
+    public get boardMaterial() {
+        return this.boardGround.groundMaterial;
+    }
+
+    public getBoardCellCenter(x: number, y: number) {
+        return this.boardGround.getCellCenter(x, y);
     }
 
     public createFullMap() {
@@ -51,7 +71,7 @@ export class BoardManager {
           const cellType = this.board.cellAt(i, j);
           if(cellType != BoardCellType.EMPTY) {
               const pos = this.boardGround.getCellCenter(i, j);
-              let entity: FieldEntity = null;
+              let entity: FieldEntity;
               if(cellType == BoardCellType.UNDESTROYABLE) {
                 entity = new UndestroyableFieldEntity(this.stones, this.scene, this.world, this.boardGround.cellSize);
               } else if(cellType == BoardCellType.DESTROYABLE) {
@@ -62,5 +82,9 @@ export class BoardManager {
           }
         }
       }
+    }
+
+    update(elapsedTime: number) {
+        this.boardGround.update(elapsedTime);
     }
 }

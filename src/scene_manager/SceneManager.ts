@@ -38,6 +38,7 @@ export class SceneManager {
     public update(): void {
         const elapsedTime: number = this.clock.getElapsedTime();
         this.sceneContainer.update(elapsedTime);
+        this.clock.start();
         this.renderer.render(this.sceneContainer.getScene(), this.sceneContainer.getCamera());
     }
 
@@ -50,6 +51,12 @@ export class SceneManager {
     onKeyUp(event: KeyboardEvent): void {
         if(this.sceneContainer) {
             this.sceneContainer.onKeyUp(event);
+        }
+    }
+
+    onKeyDown(event: KeyboardEvent): void {
+        if(this.sceneContainer) {
+            this.sceneContainer.onKeyDown(event);
         }
     }
 

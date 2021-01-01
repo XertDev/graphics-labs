@@ -4,7 +4,7 @@ import {SceneContainer} from "../scene_manager/SceneContainer";
 import JellyMenu from "../bouncing_menu/JellyMenu";
 import CallbackMenuOption from "../bouncing_menu/menu_config/CallbackMenuOption";
 import LabelMenuOption from "../bouncing_menu/menu_config/LabelMenuOption";
-import Game from "../Game";
+import App from "../App";
 import TextInsertMenuOption from "../bouncing_menu/menu_config/TextInsertMenuOption";
 
 // @ts-ignore
@@ -17,7 +17,7 @@ export class MenuSceneContainer extends SceneContainer {
     private textGeometryParams: THREE.TextGeometryParameters;
     private menuTransition: () => void;
 
-    constructor(game: Game) {
+    constructor(game: App) {
         super(game);
     }
 
@@ -70,12 +70,12 @@ export class MenuSceneContainer extends SceneContainer {
     private initHostMenu(): void {
         this.menu = new JellyMenu(this.scene, this.world, this.camera,[
             new LabelMenuOption("YourKey", new THREE.Color("blue"), this.textGeometryParams, false),
-            new LabelMenuOption(this.game.getInstanceID(), new THREE.Color("cyan"), this.textGeometryParams, true),
+            new LabelMenuOption(this.app.getInstanceID(), new THREE.Color("cyan"), this.textGeometryParams, true),
             new CallbackMenuOption("Back", new THREE.Color("red"), this.textGeometryParams, () => {
                 this.transiteMenu(() => this.initMainMenu());
             })
         ], 1);
-        this.game.getConnectionController().startHosting();
+        this.app.getConnectionController().startHosting();
     }
 
     private initJoinMenu(): void {
@@ -86,7 +86,7 @@ export class MenuSceneContainer extends SceneContainer {
                 new THREE.Color("green"), new THREE.Color("yellow"), this.textGeometryParams,
                 value => {
                     console.log(value);
-                    this.game.getConnectionController().connectToHost(value);
+                    this.app.getConnectionController().connectToHost(value);
             }),
             new CallbackMenuOption("Back", new THREE.Color("red"), this.textGeometryParams, () => {
                 this.transiteMenu(() => this.initMainMenu());

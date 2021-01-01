@@ -2,9 +2,12 @@ import * as THREE from "three";
 import * as Cannon from "cannon";
 import {SceneContainer} from "../scene_manager/SceneContainer";
 import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls";
-import { BoardManager } from '../boards/BoardManager';
-import {GLTF, GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import Game from "../Game";
+import App from "../App";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import GameManager from "../game/GameManager";
+import AnimatedBodyObject from "../utils/AnimatedBodyObject";
+import AnimatedObject from "../utils/AnimatedObject";
+
 
 const nx = require("../assets/images/nx.png");
 const ny = require("../assets/images/ny.png");
@@ -13,23 +16,37 @@ const px = require("../assets/images/px.png");
 const py = require("../assets/images/py.png");
 const pz = require("../assets/images/pz.png");
 
+const foxURL = require("../assets/models/fox.glb");
+const wolfURL = require("../assets/models/wolf.glb");
+const eagleURL = require("../assets/models/eagle.glb");
+
 const stoneContext = require.context("../assets/models/stones/", false, /.glb$/);
 const boxContext = require.context("../assets/models/boxes/", false, /.glb$/);
 
 const stoneURLs: string[] = <string[]>stoneContext.keys().map(stoneContext);
 const boxURLs: string[] = <string[]>boxContext.keys().map(boxContext);
 
+
 export class BoardSceneContainer extends SceneContainer {
+    private world = new Cannon.World();
+
+    private playerModel: AnimatedBodyObject;
+    private enemyModel: AnimatedBodyObject;
+
+    private eagleModel: AnimatedObject;
+
     private stones = new Array<THREE.Object3D>();
     private boxes = new Array<THREE.Object3D>();
 
-    private world = new Cannon.World();
+    private gameManager: GameManager;
 
-    constructor(game: Game) {
-        super(game);
+
+    constructor(app: App) {
+        super(app);
+	this.world.gravity.set(0, -100, 0);
     };
 
-    initResources() {
+    private initResources() {
         {
             const loader = new THREE.CubeTextureLoader();
             this.scene.background = loader.load([
@@ -57,8 +74,23 @@ export class BoardSceneContainer extends SceneContainer {
             modelPromises.push(promise);
         });
 
-        return Promise.all(modelPromises);
-    }
+	let promise = gltfLoader.loadAsync(foxURL).then(gltf => {
+            this.playerModel = AnimatedBodyObject.processGLTF(gltf, 0.018);
+        });
+        modelPromises.push(promise);
+
+        promise = gltfLoader.loadAsync(wolfURL).then(gltf => {
+            this.enemyModel = AnimatedBodyObject.processGLTF(gltf, 0.19);
+        });
+        modelPromises.push(promise);
+
+        promise = gltfLoader.loadAsync(eagleURL).then(gltf => {
+            this.eagleModel = AnimatedObject.processGLTF(gltf, 1);
+        });
+        modelPromises.push(promise);
+
+	return Promise.all(modelPromises);
+    };
 
     init() {
         return this.initResources().then(() => {
@@ -85,12 +117,24 @@ export class BoardSceneContainer extends SceneContainer {
             });
             this.scene.add( controls.getObject() );
 
-            const board = new BoardManager(10, 10, this.scene, this.world, this.stones, this.boxes, 20, 30);
-            board.createFullMap();
+            this.gameManager = new GameManager(
+                this.scene, this.world,
+                this.stones, this.boxes,
+                this.playerModel, this.enemyModel, this.eagleModel
+            );
         })
     };
 
-    update(deltaTime: number): void {
-    };
+   onKeyDown(event: KeyboardEvent): void {
+        this.gameManager.onKeyDown(event);
+    }
 
+    onKeyUp(event: KeyboardEvent): void {
+        this.gameManager.onKeyUp(event);
+    }
+
+    update(deltaTime: number): void {
+        this.world.step(1/60);
+        this.gameManager.update(deltaTime);
+    };
 }

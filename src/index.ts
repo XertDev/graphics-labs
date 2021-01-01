@@ -1,10 +1,10 @@
 import './style.css';
 
-import Game from "./Game";
+import App from "./App";
 
 const gameCanvas = <HTMLCanvasElement>document.getElementById("game_canvas");
 
-const game = new Game(gameCanvas);
+const game = new App(gameCanvas);
 game.init().then(() => {
   game.run();
 });

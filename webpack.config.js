@@ -33,6 +33,10 @@ module.exports = {
         type: 'asset/resource'
       },
       {
+        test: /\.glb$/i,
+        type: 'asset/resource'
+      },
+      {
         type: 'javascript/auto',
         test: /\.json$/i,
         include: [resolve(__dirname, 'src/assets/fonts')],

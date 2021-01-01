@@ -4,7 +4,7 @@ import * as Cannon from "cannon";
 export abstract class FieldEntity {
     public body: Cannon.Body;
 
-    constructor(
+    protected constructor(
         private scene: THREE.Scene,
         private world: Cannon.World,
         public mesh: THREE.Object3D,
@@ -12,7 +12,6 @@ export abstract class FieldEntity {
     ) {
         this.scene.add(mesh);
 
-        const box = new THREE.Box3().setFromObject(mesh);
         this.body = new Cannon.Body({
             shape: new Cannon.Box(new Cannon.Vec3(cellSize/2, cellSize/2, cellSize/2)),
             mass: 0

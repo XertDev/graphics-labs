@@ -2,7 +2,7 @@ export enum BoardCellType {
   EMPTY = 0,
   DESTROYABLE = 1,
   UNDESTROYABLE = 2
-};
+}
 
 export class Board {
     private map: BoardCellType[][];

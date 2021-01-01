@@ -1,10 +1,11 @@
 import * as THREE from "three/src/Three"
-import Game from "../Game";
+import App from "../App";
 export abstract class SceneContainer {
     protected scene: THREE.Scene = new THREE.Scene();
     protected camera: THREE.Camera;
 
-    protected constructor(protected game: Game) {
+    protected constructor(protected app: App) {
+
     };
 
     public abstract init(): Promise<void>;
@@ -24,6 +25,9 @@ export abstract class SceneContainer {
     };
 
     public onKeyUp(event: KeyboardEvent): void {
+    };
+
+    public onKeyDown(event: KeyboardEvent): void {
     };
 
     public update(deltaTime: number): void {

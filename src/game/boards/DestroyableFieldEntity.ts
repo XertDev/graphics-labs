@@ -1,4 +1,5 @@
 import * as Cannon from "cannon";
+import * as THREE from "three";
 import {FieldEntity} from "./FieldEntity";
 
 export class DestroyableFieldEntity extends FieldEntity{
