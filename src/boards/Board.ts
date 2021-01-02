@@ -1,35 +1,46 @@
 import * as THREE from "three/src/Three"
 
-enum BoardCellType {
+export enum BoardCellType {
   EMPTY = 0,
   DESTROYABLE = 1,
   UNDESTROYABLE = 2
-}
+};
 
 export class Board {
-    private _width: number;
-    private _height: number;
+    private map: BoardCellType[][];
 
-    private _map = new Array<Array<BoardCellType>>();
+    constructor(readonly width: number, readonly height: number) {
+        this.map = [];
+        for(let i = 0; i < height; ++i) {
+            this.map[i] = [];
+            for(let j = 0; j < width; ++j) {
+                this.map[i][j] = BoardCellType.EMPTY;
+            }
+        }
 
-    constructor(width: number, heigth: number) {
-        this._map.fill(new Array<BoardCellType>().fill(BoardCellType.EMPTY));
         this.buildBorderWalls();
-
     }
 
     private buildBorderWalls() {
-        for(let i = 0; i < this._map.length; ++i) {
-            this._map[0][i] = BoardCellType.UNDESTROYABLE;
-            this._map[this._height-1][i] = BoardCellType.UNDESTROYABLE;
+        for(let i = 0; i < this.width; ++i) {
+            this.map[0][i] = BoardCellType.UNDESTROYABLE;
+            this.map[this.height-1][i] = BoardCellType.UNDESTROYABLE;
         }
-        for(let i = 1; i < this._map.length-1; ++i) {
-            this._map[i][0] = BoardCellType.UNDESTROYABLE;
-            this._map[i][this._width-1] = BoardCellType.UNDESTROYABLE;
+        for(let i = 1; i < this.height-1; ++i) {
+            this.map[i][0] = BoardCellType.UNDESTROYABLE;
+            this.map[i][this.width-1] = BoardCellType.UNDESTROYABLE;
         }
     }
 
     public cellAt(x: number, y: number) {
-        return this._map[x][y];
+        return this.map[x][y];
+    }
+
+    public isEmptyCell(x: number, y:number) {
+        return this.map[x][y] == BoardCellType.EMPTY;
+    }
+
+    public setCellAt(x: number, y: number, type: BoardCellType){
+        this.map[x][y] = type;
     }
 }

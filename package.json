@@ -22,7 +22,8 @@
     "webpack": "latest",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "latest",
-    "@types/cannon": "latest"
+    "@types/cannon": "latest",
+    "@types/webpack-env": "latest"
   },
   "dependencies": {
     "cannon": "latest",

@@ -2,60 +2,60 @@ import * as THREE from "three/src/Three"
 import {SceneContainer} from "./SceneContainer";
 
 export class SceneManager {
-    private _width: number;
-    private _height: number;
-    private _renderer: THREE.WebGLRenderer;
-    private _clock: THREE.Clock = new THREE.Clock();
+    private width: number;
+    private height: number;
+    private renderer: THREE.WebGLRenderer;
+    private clock: THREE.Clock = new THREE.Clock();
 
-    private _sceneContainer: SceneContainer;
+    private sceneContainer: SceneContainer;
 
     constructor(container: HTMLElement) {
-        this._width = window.innerWidth;
-        this._height = window.innerHeight;
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
 
-        this._renderer = new THREE.WebGLRenderer({
+        this.renderer = new THREE.WebGLRenderer({
             antialias: true,
         });
 
         let dpr = (window.devicePixelRatio) ? window.devicePixelRatio: 1;
-        this._renderer.setPixelRatio(dpr);
-        this._renderer.setSize(this._width, this._height);
-        container.appendChild(this._renderer.domElement);
+        this.renderer.setPixelRatio(dpr);
+        this.renderer.setSize(this.width, this.height);
+        container.appendChild(this.renderer.domElement);
     }
 
     public setSceneContainer(nextScene: SceneContainer): Promise<void> {
         return nextScene.init().then(() => {
-            this._sceneContainer = nextScene;
+            this.sceneContainer = nextScene;
         });
     }
 
     public onWindowResize(): void {
-        this._width = window.innerWidth;
-        this._height = window.innerHeight;
-        this._renderer.setSize(this._width, this._height);
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.renderer.setSize(this.width, this.height);
     }
 
     public update(): void {
-        const elapsedTime: number = this._clock.getElapsedTime();
-        this._sceneContainer.update(elapsedTime);
-        this._renderer.render(this._sceneContainer.getScene(), this._sceneContainer.getCamera());
+        const elapsedTime: number = this.clock.getElapsedTime();
+        this.sceneContainer.update(elapsedTime);
+        this.renderer.render(this.sceneContainer.getScene(), this.sceneContainer.getCamera());
     }
 
     onMouseMove(event: MouseEvent): void {
-        if(this._sceneContainer) {
-            this._sceneContainer.onMouseMove(event);
+        if(this.sceneContainer) {
+            this.sceneContainer.onMouseMove(event);
         }
     }
 
     onKeyUp(event: KeyboardEvent): void {
-        if(this._sceneContainer) {
-            this._sceneContainer.onKeyUp(event);
+        if(this.sceneContainer) {
+            this.sceneContainer.onKeyUp(event);
         }
     }
 
     onClick(event: MouseEvent) : void {
-        if(this._sceneContainer) {
-            this._sceneContainer.onClick(event);
+        if(this.sceneContainer) {
+            this.sceneContainer.onClick(event);
         }
     }
 }

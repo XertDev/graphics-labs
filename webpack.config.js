@@ -46,6 +46,10 @@ module.exports = {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader'],
       },
+      {
+        test: /\.glb$/i,
+        type: 'asset/resource'
+      },
     ],
   },
   plugins: [

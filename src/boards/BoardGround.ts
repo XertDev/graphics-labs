@@ -1,9 +1,13 @@
 import * as THREE from "three";
+import * as Cannon from "cannon";
 
 const grassURL = require("../assets/images/grass.png");
 
 export class BoardGround {
-    private _group = new THREE.Group();
+    private group = new THREE.Group();
+
+    public readonly boardWidth;
+    public readonly boardHeight;
 
     constructor(
         readonly width: number,
@@ -12,15 +16,17 @@ export class BoardGround {
         readonly cellSize: number,
         readonly border: number,
         readonly depth) {
+
+            this.boardWidth = this.width * this.cellSize + (this.width-1)*this.cellSpace;
+            this.boardHeight = this.height * this.cellSize + (this.height - 1)*this.cellSpace;
             this.buildIsland();
             this.buildCells();
     }
 
     private buildIsland() {
-        const maxWidth = this.width * this.cellSize + (this.width-1)*this.cellSpace;
-        const maxHeight = this.height * this.cellSize + (this.height - 1)*this.cellSpace;
 
-        const radius = Math.hypot(maxWidth, maxHeight)/2 + this.border;
+
+        const radius = Math.hypot(this.boardWidth, this.boardHeight)/2 + this.border;
         const boardGeometry = new THREE.CylinderGeometry(radius, radius, this.depth, 100);
         const texture = new THREE.TextureLoader().load( grassURL );
         texture.repeat.set(1,1);
@@ -28,7 +34,7 @@ export class BoardGround {
         const material = new THREE.MeshLambertMaterial({ map: texture });
 
         const mesh = new THREE.Mesh(boardGeometry, material);
-        this._group.add(mesh);
+        this.group.add(mesh);
     }
 
     private buildCells() {
@@ -46,7 +52,7 @@ export class BoardGround {
             const line = new THREE.Mesh(geometry, material);
             line.rotateX(Math.PI/2)
             line.position.set(offsetX, this.depth/2, 0);
-            this._group.add(line);
+            this.group.add(line);
             offsetX += this.cellSpace + this.cellSize;
         }
 
@@ -55,12 +61,20 @@ export class BoardGround {
             const line = new THREE.Mesh(geometry, material);
             line.rotateZ(Math.PI/2)
             line.position.set(0, this.depth/2, offsetZ);
-            this._group.add(line);
+            this.group.add(line);
             offsetZ += this.cellSpace + this.cellSize;
         }
     }
 
+    public getCellCenter(x: number, y: number): Cannon.Vec3 {
+        return new Cannon.Vec3(
+            -this.boardWidth/2 + this.cellSpace * (x+1) + this.cellSize * x + this.cellSize/2,
+            this.depth/2,
+            -this.boardWidth/2 + this.cellSpace * (y+1) + this.cellSize * y + this.cellSize/2,
+        )
+    }
+
     getGroup(): THREE.Group {
-        return this._group;
+        return this.group;
     }
 }

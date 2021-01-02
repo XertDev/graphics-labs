@@ -1,22 +1,22 @@
 import * as THREE from "three/src/Three"
 import Game from "../Game";
 export abstract class SceneContainer {
-    protected _scene: THREE.Scene = new THREE.Scene();
-    protected _camera: THREE.Camera;
-    protected _game: Game;
+    protected scene: THREE.Scene = new THREE.Scene();
+    protected camera: THREE.Camera;
+    protected game: Game;
 
     protected constructor(game: Game) {
-        this._game = game;
+        this.game = game;
     };
 
     public abstract init(): Promise<void>;
 
     public getScene(): THREE.Scene {
-        return this._scene;
+        return this.scene;
     };
 
     public getCamera(): THREE.Camera {
-        return this._camera;
+        return this.camera;
     };
 
     public onMouseMove(event: MouseEvent): void {
