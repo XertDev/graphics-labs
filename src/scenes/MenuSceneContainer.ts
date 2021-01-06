@@ -72,6 +72,7 @@ export class MenuSceneContainer extends SceneContainer {
             new LabelMenuOption("YourKey", new THREE.Color("blue"), this.textGeometryParams, false),
             new LabelMenuOption(this.app.getInstanceID(), new THREE.Color("cyan"), this.textGeometryParams, true),
             new CallbackMenuOption("Back", new THREE.Color("red"), this.textGeometryParams, () => {
+                this.app.getConnectionController().stopHosting();
                 this.transiteMenu(() => this.initMainMenu());
             })
         ], 1);

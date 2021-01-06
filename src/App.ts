@@ -26,7 +26,7 @@ export default class App {
         window.addEventListener('mousemove', (e) => this.sceneManager.onMouseMove(e));
         window.addEventListener("resize", (e) => this.sceneManager.onWindowResize());
 
-        return this.sceneManager.setSceneContainer(new BoardSceneContainer(this))
+        return this.sceneManager.setSceneContainer(new MenuSceneContainer(this))
     }
 
     private animate(): void {

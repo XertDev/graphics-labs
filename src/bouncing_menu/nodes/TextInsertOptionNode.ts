@@ -41,7 +41,7 @@ export default class TextInsertOptionNode extends HangedTextNode {
             if(this.currentPos > 0) {
                 --this.currentPos;
                 this.updateValue(this.currentPos, this.defaultValue);
-                this.currentValue = this.currentValue.slice(-1);
+                this.currentValue = this.currentValue.slice(0, -1);
                 if(this.acceptable) {
                     this.letters.forEach(letter => {
                         letter.material = new THREE.MeshLambertMaterial({color: this.color});
