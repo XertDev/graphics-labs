@@ -17,6 +17,8 @@ export class Board {
         }
 
         this.buildBorderWalls();
+        this.buildStoneInsideMap();
+        this.buildBoxInsideMap();
     }
 
     private buildBorderWalls() {
@@ -28,6 +30,35 @@ export class Board {
             this.map[i][0] = BoardCellType.UNDESTROYABLE;
             this.map[i][this.width-1] = BoardCellType.UNDESTROYABLE;
         }
+    }
+
+    private buildStoneInsideMap() {
+        for (let i = 2; i < this.width; i = i+2) {
+            for (let j = 2; j < this.height; j = j+2) {
+                this.map[j][i] = BoardCellType.UNDESTROYABLE;
+            }
+        }
+    }
+
+    private buildBoxInsideMap() {
+        const numOfBoxes= Math.floor(this.width * this.height / 10);
+        for (let num = 0; num < numOfBoxes; num++){
+            let x;
+            let y;
+            do {
+            x = Math.floor(Math.random() * (this.width - 2)) + 1;
+            y = Math.floor(Math.random() * (this.height - 2)) + 1;
+            } while(
+                (x == 1 && y == 1)
+                || (x == 1 && y == 2)
+                || (x == 2 && y == 1)
+                || (x == this.width-2 && y == this.height - 2)
+                || (x == this.width-3 && y == this.height - 2)
+                || (x == this.width-2 && y == this.height - 3)
+                || this.map[x][y] != BoardCellType.EMPTY)
+            this.map[x][y] = BoardCellType.DESTROYABLE;
+        }
+
     }
 
     public cellAt(x: number, y: number) {

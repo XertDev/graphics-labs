@@ -15,8 +15,8 @@ const keyAction = {
 };
 
 export default class GameManager {
-    readonly MAP_WIDTH = 12;
-    readonly MAP_HEIGHT = 12;
+    readonly MAP_WIDTH = 15;
+    readonly MAP_HEIGHT = 15;
 
     private boardManager: BoardManager;
     private playerManager: PlayerManager;

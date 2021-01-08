@@ -12,10 +12,10 @@ import AnimatedObject from "../../utils/AnimatedObject";
 export class BoardManager {
     private boardGround: BoardGround;
     private board: Board;
-    readonly CELL_SIZE = 2;
-    readonly CELL_SPACE = 0.1;
-    readonly BORDER = 3;
-    readonly DEPTH = 0.8;
+    static readonly CELL_SIZE = 2;
+    static readonly CELL_SPACE = 0.1;
+    static readonly BORDER = 3;
+    static readonly DEPTH = 0.8;
 
     private entities = new Array<FieldEntity>();
 
@@ -35,9 +35,9 @@ export class BoardManager {
         this.boardGround = new BoardGround(
             scene, world,
             this.width, this.height,
-            this.CELL_SPACE, this.CELL_SIZE,
-            this.BORDER,
-            this.DEPTH,
+            BoardManager.CELL_SPACE, BoardManager.CELL_SIZE,
+            BoardManager.BORDER,
+            BoardManager.DEPTH,
             eagle
         );
 

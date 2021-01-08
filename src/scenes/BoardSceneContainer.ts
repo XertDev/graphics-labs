@@ -7,6 +7,7 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import GameManager from "../game/GameManager";
 import AnimatedBodyObject from "../utils/AnimatedBodyObject";
 import AnimatedObject from "../utils/AnimatedObject";
+import { BoardManager } from '../game/boards/BoardManager';
 
 
 const nx = require("../assets/images/nx.png");
@@ -60,16 +61,30 @@ export class BoardSceneContainer extends SceneContainer {
         const modelPromises = new Array<Promise<void>>();
         stoneURLs.map((url, index) => {
             const promise = gltfLoader.loadAsync(url).then((gltf) => {
-                const stone = <THREE.Object3D>(gltf.scene);
-                stone.scale.set(2, 2, 2);
-                this.stones[index] = stone;
+                const stone = new THREE.Box3().setFromObject(gltf.scene);
+                const size = stone.getSize(new THREE.Vector3());
+                const maxBorder = Math.max(size.x, size.y);
+                const scale = BoardManager.CELL_SIZE / maxBorder * 0.9;
+
+                const stone_gltf = <THREE.Object3D>(gltf.scene);
+
+                stone_gltf.scale.set(scale, scale, scale);
+                this.stones[index] = stone_gltf;
             });
             modelPromises.push(promise);
         });
 
         boxURLs.map((url, index) => {
             const promise = gltfLoader.loadAsync(url).then( (gltf) => {
-                this.boxes[index] = gltf.scene;
+                const box = new THREE.Box3().setFromObject(gltf.scene);
+                const size = box.getSize(new THREE.Vector3());
+                const maxBorder = Math.max(size.x, size.y);
+                const scale = BoardManager.CELL_SIZE / maxBorder * 0.8;
+
+                const box_gltf = <THREE.Object3D>(gltf.scene);
+
+                box_gltf.scale.set(scale, scale, scale);
+                this.boxes[index] = box_gltf;
             });
             modelPromises.push(promise);
         });
