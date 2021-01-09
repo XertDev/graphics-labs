@@ -7,7 +7,7 @@ import {MenuSceneContainer} from "./scenes/MenuSceneContainer";
 export default class App {
     private readonly instanceID: string;
     private readonly connectionController: ConnectionController;
-    private sceneManager: SceneManager;
+    public sceneManager: SceneManager;
 
     constructor(gameContainer: HTMLElement) {
         const randomBytes = new Uint8Array(3);
@@ -26,7 +26,7 @@ export default class App {
         window.addEventListener('mousemove', (e) => this.sceneManager.onMouseMove(e));
         window.addEventListener("resize", (e) => this.sceneManager.onWindowResize());
 
-        return this.sceneManager.setSceneContainer(new BoardSceneContainer(this))
+        return this.sceneManager.setSceneContainer(new MenuSceneContainer(this))
     }
 
     private animate(): void {

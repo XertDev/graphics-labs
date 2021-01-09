@@ -40,6 +40,7 @@ export default class GameManager {
     constructor(
         scene: THREE.Scene,
         world: Cannon.World,
+        isHost: boolean,
         stones: Array<THREE.Object3D>,
         boxes: Array<THREE.Object3D>,
         playerModel: AnimatedBodyObject,

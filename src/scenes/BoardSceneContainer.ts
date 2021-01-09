@@ -9,7 +9,6 @@ import AnimatedBodyObject from "../utils/AnimatedBodyObject";
 import AnimatedObject from "../utils/AnimatedObject";
 import { BoardManager } from '../game/boards/BoardManager';
 
-
 const nx = require("../assets/images/nx.png");
 const ny = require("../assets/images/ny.png");
 const nz = require("../assets/images/nz.png");
@@ -41,13 +40,12 @@ export class BoardSceneContainer extends SceneContainer {
 
     private gameManager: GameManager;
 
-
-    constructor(app: App) {
+    constructor(app: App, private readonly isHost=false) {
         super(app);
-	this.world.gravity.set(0, -100, 0);
+	    this.world.gravity.set(0, -100, 0);
     };
 
-    private initResources() {
+    public initResources() {
         {
             const loader = new THREE.CubeTextureLoader();
             this.scene.background = loader.load([
@@ -104,40 +102,40 @@ export class BoardSceneContainer extends SceneContainer {
         });
         modelPromises.push(promise);
 
-	return Promise.all(modelPromises);
+	return Promise.all(modelPromises).then(()=>{});
     };
 
-    init() {
-        return this.initResources().then(() => {
-            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            this.camera.position.x = 10;
-            this.camera.position.y = 15;
-            this.camera.position.z = 10;
+    setup() {
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.x = 10;
+        this.camera.position.y = 15;
+        this.camera.position.z = 10;
 
-            const light = new THREE.DirectionalLight(0xffffff, 1.0);
+        const light = new THREE.DirectionalLight(0xffffff, 1.0);
 
-            light.position.set(100, 100, 100);
+        light.position.set(100, 100, 100);
 
 
-            const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+        const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
 
-            light2.position.set(-100, 100, -100);
+        light2.position.set(-100, 100, -100);
 
-            this.scene.add(light);
-            this.scene.add(light2);
+        this.scene.add(light);
+        this.scene.add(light2);
 
-            const controls = new PointerLockControls( this.camera, document.body );
-            document.addEventListener('click', () => {
-                controls.lock();
-            });
-            this.scene.add( controls.getObject() );
+        const controls = new PointerLockControls( this.camera, document.body );
+        document.addEventListener('click', () => {
+            controls.lock();
+        });
+        this.scene.add( controls.getObject() );
 
-            this.gameManager = new GameManager(
-                this.scene, this.world,
-                this.stones, this.boxes,
-                this.playerModel, this.enemyModel, this.eagleModel
-            );
-        })
+        this.gameManager = new GameManager(
+            this.scene, this.world,
+            this.isHost,
+            this.stones, this.boxes,
+            this.playerModel, this.enemyModel, this.eagleModel
+        );
+        return Promise.resolve();
     };
 
    onKeyDown(event: KeyboardEvent): void {

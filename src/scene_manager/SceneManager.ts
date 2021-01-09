@@ -24,8 +24,10 @@ export class SceneManager {
     }
 
     public setSceneContainer(nextScene: SceneContainer): Promise<void> {
-        return nextScene.init().then(() => {
-            this.sceneContainer = nextScene;
+        return nextScene.initResources().then(() => {
+            nextScene.setup().then(() => {
+                this.sceneContainer = nextScene;
+            })
         });
     }
 

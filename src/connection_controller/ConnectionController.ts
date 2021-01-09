@@ -67,8 +67,11 @@ export default class ConnectionController {
         this.peer.off("connection", this.defaultConnect);
         this.peer.on("connection", this.clientConnect);
         this.connection = this.peer.connect(this.GAME_PREFIX + host_key);
-        this.connection.on("open", () => {
-            this.connection.on("data", this.onMessage);
+        return new Promise<void>((resolve, reject) => {
+            this.connection.on("open", () => {
+                this.connection.on("data", this.onMessage);
+                resolve();
+            })
         })
     };
 
@@ -97,5 +100,13 @@ export default class ConnectionController {
                 callback(data["payload"]);
             })
         }
+    }
+
+    public sendToPeer(category: string, message: any) {
+        const data = {
+            category: category,
+            payload: message
+        }
+        this.connection.send(data);
     }
 }

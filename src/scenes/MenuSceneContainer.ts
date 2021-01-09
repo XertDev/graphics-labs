@@ -6,6 +6,7 @@ import CallbackMenuOption from "../bouncing_menu/menu_config/CallbackMenuOption"
 import LabelMenuOption from "../bouncing_menu/menu_config/LabelMenuOption";
 import App from "../App";
 import TextInsertMenuOption from "../bouncing_menu/menu_config/TextInsertMenuOption";
+import {BoardSceneContainer} from "./BoardSceneContainer";
 
 // @ts-ignore
 import fontURL from "../assets/fonts/droid_sans_mono_regular.typeface.json";
@@ -21,21 +22,7 @@ export class MenuSceneContainer extends SceneContainer {
         super(game);
     }
 
-    public init() {
-        this.scene.fog = new THREE.Fog(0x202533, -1, 100);
-        const aspect = window.innerWidth / window.innerHeight;
-        const distance = 15;
-
-        this.camera = new THREE.OrthographicCamera(-distance * aspect, distance * aspect, distance, -distance, -1, 100)
-
-        this.camera.position.set(-6, 5, 20);
-        this.camera.lookAt(new THREE.Vector3());
-
-        this.world = new Cannon.World();
-        this.world.gravity.set(0, -50, 0);
-        this.setupLights();
-
-
+    public initResources() {
         const fontLoader = new THREE.FontLoader();
         this.scene.background = new THREE.TextureLoader().load(nz);
 
@@ -51,8 +38,25 @@ export class MenuSceneContainer extends SceneContainer {
                 bevelOffset: 0,
                 bevelSegments: 10
             };
-            this.initMainMenu();
         })
+    }
+
+    public setup() {
+        this.scene.fog = new THREE.Fog(0x202533, -1, 100);
+        const aspect = window.innerWidth / window.innerHeight;
+        const distance = 15;
+
+        this.camera = new THREE.OrthographicCamera(-distance * aspect, distance * aspect, distance, -distance, -1, 100)
+
+        this.camera.position.set(-6, 5, 20);
+        this.camera.lookAt(new THREE.Vector3());
+
+        this.world = new Cannon.World();
+        this.world.gravity.set(0, -50, 0);
+        this.setupLights();
+
+        this.initMainMenu();
+        return Promise.resolve();
     }
 
     private initMainMenu(): void {
@@ -76,7 +80,14 @@ export class MenuSceneContainer extends SceneContainer {
                 this.transiteMenu(() => this.initMainMenu());
             })
         ], 1);
-        this.app.getConnectionController().startHosting();
+        const connectionController = this.app.getConnectionController();
+        connectionController.startHosting();
+        const onConnect = (() => {
+            connectionController.sendToPeer("accept-connection", null);
+            connectionController.unsubscribe("connect", onConnect);
+            this.app.sceneManager.setSceneContainer(new BoardSceneContainer(this.app, true));
+        })
+        connectionController.subscribe("connect", onConnect);
     }
 
     private initJoinMenu(): void {
@@ -87,7 +98,16 @@ export class MenuSceneContainer extends SceneContainer {
                 new THREE.Color("green"), new THREE.Color("yellow"), this.textGeometryParams,
                 value => {
                     console.log(value);
-                    this.app.getConnectionController().connectToHost(value);
+                    const connectionController = this.app.getConnectionController();
+                    const onConnect = (() => {
+                        connectionController.unsubscribe("accept-connection", onConnect);
+                        this.app.sceneManager.setSceneContainer(new BoardSceneContainer(this.app, false));
+                    })
+                    connectionController.subscribe("accept-connection", onConnect);
+                    connectionController.connectToHost(value).then(() => {
+                        connectionController.sendToPeer("connect", null);
+                    });
+
             }),
             new CallbackMenuOption("Back", new THREE.Color("red"), this.textGeometryParams, () => {
                 this.transiteMenu(() => this.initMainMenu());

@@ -8,7 +8,9 @@ export abstract class SceneContainer {
 
     };
 
-    public abstract init(): Promise<void>;
+    public abstract initResources(): Promise<void>;
+
+    public abstract setup(): Promise<void>;
 
     public getScene(): THREE.Scene {
         return this.scene;
