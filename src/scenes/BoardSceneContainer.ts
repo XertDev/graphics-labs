@@ -20,12 +20,6 @@ const foxURL = require("../assets/models/fox.glb");
 const wolfURL = require("../assets/models/wolf.glb");
 const eagleURL = require("../assets/models/eagle.glb");
 
-const stoneContext = require.context("../assets/models/stones/", false, /.glb$/);
-const boxContext = require.context("../assets/models/boxes/", false, /.glb$/);
-
-const stoneURLs: string[] = <string[]>stoneContext.keys().map(stoneContext);
-const boxURLs: string[] = <string[]>boxContext.keys().map(boxContext);
-
 
 export class BoardSceneContainer extends SceneContainer {
     private world = new Cannon.World();
@@ -35,14 +29,12 @@ export class BoardSceneContainer extends SceneContainer {
 
     private eagleModel: AnimatedObject;
 
-    private stones = new Array<THREE.Object3D>();
-    private boxes = new Array<THREE.Object3D>();
-
     private gameManager: GameManager;
 
-    constructor(app: App, private readonly isHost=false) {
+
+    constructor(app: App, private isHost: boolean) {
         super(app);
-	    this.world.gravity.set(0, -100, 0);
+        this.world.gravity.set(0, -100, 0);
     };
 
     public initResources() {
@@ -57,42 +49,15 @@ export class BoardSceneContainer extends SceneContainer {
 
         const gltfLoader = new GLTFLoader();
         const modelPromises = new Array<Promise<void>>();
-        stoneURLs.map((url, index) => {
-            const promise = gltfLoader.loadAsync(url).then((gltf) => {
-                const stone = new THREE.Box3().setFromObject(gltf.scene);
-                const size = stone.getSize(new THREE.Vector3());
-                const maxBorder = Math.max(size.x, size.y);
-                const scale = BoardManager.CELL_SIZE / maxBorder * 0.9;
 
-                const stone_gltf = <THREE.Object3D>(gltf.scene);
-
-                stone_gltf.scale.set(scale, scale, scale);
-                this.stones[index] = stone_gltf;
-            });
-            modelPromises.push(promise);
-        });
-
-        boxURLs.map((url, index) => {
-            const promise = gltfLoader.loadAsync(url).then( (gltf) => {
-                const box = new THREE.Box3().setFromObject(gltf.scene);
-                const size = box.getSize(new THREE.Vector3());
-                const maxBorder = Math.max(size.x, size.y);
-                const scale = BoardManager.CELL_SIZE / maxBorder * 0.8;
-
-                const box_gltf = <THREE.Object3D>(gltf.scene);
-
-                box_gltf.scale.set(scale, scale, scale);
-                this.boxes[index] = box_gltf;
-            });
-            modelPromises.push(promise);
-        });
-
-	let promise = gltfLoader.loadAsync(foxURL).then(gltf => {
-            this.playerModel = AnimatedBodyObject.processGLTF(gltf, 0.018);
+        let promise = gltfLoader.loadAsync(foxURL).then(gltf => {
+            gltf.scene.rotateY(Math.PI/2);
+            this.playerModel = AnimatedBodyObject.processGLTF(gltf, 0.014);
         });
         modelPromises.push(promise);
 
         promise = gltfLoader.loadAsync(wolfURL).then(gltf => {
+            gltf.scene.rotateY(Math.PI);
             this.enemyModel = AnimatedBodyObject.processGLTF(gltf, 0.19);
         });
         modelPromises.push(promise);
@@ -102,14 +67,15 @@ export class BoardSceneContainer extends SceneContainer {
         });
         modelPromises.push(promise);
 
-	return Promise.all(modelPromises).then(()=>{});
+        return Promise.all(modelPromises).then(() => {});
     };
 
     setup() {
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.x = 10;
         this.camera.position.y = 15;
-        this.camera.position.z = 10;
+
+        this.camera.position.x = this.isHost ? -10 : 10;
+        this.camera.position.z = this.isHost ? -10 : 10;
 
         const light = new THREE.DirectionalLight(0xffffff, 1.0);
 
@@ -123,31 +89,32 @@ export class BoardSceneContainer extends SceneContainer {
         this.scene.add(light);
         this.scene.add(light2);
 
-        const controls = new PointerLockControls( this.camera, document.body );
-        document.addEventListener('click', () => {
-            controls.lock();
-        });
-        this.scene.add( controls.getObject() );
+        this.scene.add( this.camera );
+        this.camera.lookAt(0, 0, 0);
+
 
         this.gameManager = new GameManager(
-            this.scene, this.world,
+            this.scene, this.world, this.camera,
+            this.app.getConnectionController(),
             this.isHost,
-            this.stones, this.boxes,
             this.playerModel, this.enemyModel, this.eagleModel
         );
-        return Promise.resolve();
+
+        return this.gameManager.setup();
     };
 
    onKeyDown(event: KeyboardEvent): void {
-        this.gameManager.onKeyDown(event);
     }
 
     onKeyUp(event: KeyboardEvent): void {
-        this.gameManager.onKeyUp(event);
     }
 
     update(deltaTime: number): void {
         this.world.step(1/60);
         this.gameManager.update(deltaTime);
     };
+
+   onClick(event: MouseEvent): void {
+       this.gameManager.onClick(event);
+   }
 }

@@ -12,27 +12,41 @@ export default class ConnectionController {
         this.peer.on("connection", this.defaultConnect);
     }
 
-    private defaultConnect(conn: Peer.DataConnection) {
+    private defaultConnect = (conn: Peer.DataConnection) => {
         conn.on("open", () => {
-           conn.send("Peer not initialized");
-           setTimeout(() => {
-               conn.close();
-           }, 500);
+            conn.send("Peer not initialized");
+            setTimeout(() => {
+                conn.close();
+            }, 500);
         });
-    }
+    };
 
-    private clientConnect(conn: Peer.DataConnection) {
+    private onMessage = (data: any) => {
+        const category = data["category"];
+        console.log(data);
+        console.log("receiving: " + category);
+
+        const subscribers = this.subscribersMap[category];
+        if(subscribers) {
+            subscribers.forEach(callback => {
+                callback(data["payload"]);
+            });
+        }
+    };
+
+    private clientConnect = (conn: Peer.DataConnection) => {
         conn.on("open", () => {
            conn.send("Client does not accept connection");
            setTimeout(() => {
                conn.close();
            }, 500);
         });
-    }
+    };
 
-    private hostConnect(conn: Peer.DataConnection) {
+    private hostConnect = (conn: Peer.DataConnection) => {
         if(this.connection && this.connection.open) {
             conn.on("open", () => {
+                console.log("Host already connected to another client");
                conn.send("Host already connected to another client");
                setTimeout(() => {
                    conn.close();
@@ -42,10 +56,13 @@ export default class ConnectionController {
         }
         this.connection = conn;
         conn.on("open", () => {
+            console.log("Connected to: " + conn.peer);
             conn.on("data", this.onMessage);
+            conn.on("close", () => console.log("connection closed"));
+            conn.on("error", (err) => console.log(err))
         });
-        console.log("Connected to: " + conn.peer);
-    }
+
+    };
 
     public startHosting() {
         this.peer.off("connection", this.defaultConnect);
@@ -66,13 +83,20 @@ export default class ConnectionController {
     public connectToHost(host_key: string) {
         this.peer.off("connection", this.defaultConnect);
         this.peer.on("connection", this.clientConnect);
-        this.connection = this.peer.connect(this.GAME_PREFIX + host_key);
-        return new Promise<void>((resolve, reject) => {
+        this.connection = this.peer.connect(this.GAME_PREFIX + host_key, {
+            reliable: true
+        });
+        return new Promise<void>((resolve) => {
+            this.connection.on("error", (err) => console.log(err));
+            this.connection.on("close", () => console.log("connection closed"));
             this.connection.on("open", () => {
+                console.log("Connected to: " + this.connection.peer);
                 this.connection.on("data", this.onMessage);
                 resolve();
-            })
-        })
+            });
+        });
+
+
     };
 
     public disconnectFromHost() {
@@ -92,21 +116,14 @@ export default class ConnectionController {
         this.subscribersMap[category] = this.subscribersMap[category].filter(entry => entry != callback);
     }
 
-    private onMessage(data: any) {
-        const category = data["type"];
-        if(this.subscribersMap.has(category)) {
-            const subscribers = this.subscribersMap[category];
-            subscribers.forEach(callback => {
-                callback(data["payload"]);
-            })
-        }
-    }
 
     public sendToPeer(category: string, message: any) {
+        console.log("sending: " + category);
+        console.log(message);
         const data = {
             category: category,
             payload: message
-        }
+        };
         this.connection.send(data);
     }
 }

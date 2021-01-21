@@ -1,75 +1,69 @@
 export enum BoardCellType {
   EMPTY = 0,
-  DESTROYABLE = 1,
-  UNDESTROYABLE = 2
+  HOST = 1,
+  CLIENT = 2
 }
 
 export class Board {
     private map: BoardCellType[][];
 
     constructor(readonly width: number, readonly height: number) {
+    }
+
+    public generate() {
         this.map = [];
-        for(let i = 0; i < height; ++i) {
+        for(let i = 0; i < this.height; ++i) {
             this.map[i] = [];
-            for(let j = 0; j < width; ++j) {
+            for(let j = 0; j < this.width; ++j) {
                 this.map[i][j] = BoardCellType.EMPTY;
             }
         }
 
-        this.buildBorderWalls();
-        this.buildStoneInsideMap();
-        this.buildBoxInsideMap();
+        this.placeHostCheckers();
+        this.placePeerCheckers();
     }
 
-    private buildBorderWalls() {
-        for(let i = 0; i < this.width; ++i) {
-            this.map[0][i] = BoardCellType.UNDESTROYABLE;
-            this.map[this.height-1][i] = BoardCellType.UNDESTROYABLE;
-        }
-        for(let i = 1; i < this.height-1; ++i) {
-            this.map[i][0] = BoardCellType.UNDESTROYABLE;
-            this.map[i][this.width-1] = BoardCellType.UNDESTROYABLE;
-        }
+    get boardMap() {
+        return this.map;
     }
 
-    private buildStoneInsideMap() {
-        for (let i = 2; i < this.width; i = i+2) {
-            for (let j = 2; j < this.height; j = j+2) {
-                this.map[j][i] = BoardCellType.UNDESTROYABLE;
+    set boardMap(map: BoardCellType[][]) {
+        this.map = map;
+    }
+
+    public isWhiteCell(x: number, y: number) {
+        return (x+y) % 2 == 0;
+    }
+
+    private placePeerCheckers() {
+        for(let i = 0; i < 3; ++i) {
+            for(let j = 0; j < this.width; ++j) {
+                if(this.isWhiteCell(this.height - i - 1, j)){
+                    this.map[this.height - i - 1][j] = BoardCellType.CLIENT;
+                }
             }
         }
     }
 
-    private buildBoxInsideMap() {
-        const numOfBoxes= Math.floor(this.width * this.height / 10);
-        for (let num = 0; num < numOfBoxes; num++){
-            let x;
-            let y;
-            do {
-            x = Math.floor(Math.random() * (this.width - 2)) + 1;
-            y = Math.floor(Math.random() * (this.height - 2)) + 1;
-            } while(
-                (x == 1 && y == 1)
-                || (x == 1 && y == 2)
-                || (x == 2 && y == 1)
-                || (x == this.width-2 && y == this.height - 2)
-                || (x == this.width-3 && y == this.height - 2)
-                || (x == this.width-2 && y == this.height - 3)
-                || this.map[x][y] != BoardCellType.EMPTY)
-            this.map[x][y] = BoardCellType.DESTROYABLE;
+    private placeHostCheckers() {
+        for(let i = 0; i < 3; ++i) {
+            for(let j = 0; j < this.width; ++j) {
+                if(this.isWhiteCell(i, j)){
+                    this.map[i][j] = BoardCellType.HOST;
+                }
+            }
         }
-
     }
 
     public cellAt(x: number, y: number) {
-        return this.map[x][y];
+        return this.map[y][x];
     }
 
     public isEmptyCell(x: number, y:number) {
-        return this.map[x][y] == BoardCellType.EMPTY;
+        return this.map[y][x] == BoardCellType.EMPTY;
     }
 
     public setCellAt(x: number, y: number, type: BoardCellType){
-        this.map[x][y] = type;
+        this.map[y][x] = type;
     }
 }

@@ -56,6 +56,7 @@ export class MenuSceneContainer extends SceneContainer {
         this.setupLights();
 
         this.initMainMenu();
+
         return Promise.resolve();
     }
 
@@ -80,14 +81,15 @@ export class MenuSceneContainer extends SceneContainer {
                 this.transiteMenu(() => this.initMainMenu());
             })
         ], 1);
-        const connectionController = this.app.getConnectionController();
-        connectionController.startHosting();
+
         const onConnect = (() => {
-            connectionController.sendToPeer("accept-connection", null);
             connectionController.unsubscribe("connect", onConnect);
+            console.log("Succesfully connected to client");
             this.app.sceneManager.setSceneContainer(new BoardSceneContainer(this.app, true));
-        })
+        });
+        const connectionController = this.app.getConnectionController();
         connectionController.subscribe("connect", onConnect);
+        connectionController.startHosting();
     }
 
     private initJoinMenu(): void {
@@ -100,14 +102,14 @@ export class MenuSceneContainer extends SceneContainer {
                     console.log(value);
                     const connectionController = this.app.getConnectionController();
                     const onConnect = (() => {
-                        connectionController.unsubscribe("accept-connection", onConnect);
-                        this.app.sceneManager.setSceneContainer(new BoardSceneContainer(this.app, false));
-                    })
-                    connectionController.subscribe("accept-connection", onConnect);
+                       connectionController.unsubscribe("accept-connect", onConnect);
+                       console.log("Succesfully connected to host");
+                       this.app.sceneManager.setSceneContainer(new BoardSceneContainer(this.app, false));
+                    });
+                    connectionController.subscribe("accept-connect", onConnect);
                     connectionController.connectToHost(value).then(() => {
                         connectionController.sendToPeer("connect", null);
                     });
-
             }),
             new CallbackMenuOption("Back", new THREE.Color("red"), this.textGeometryParams, () => {
                 this.transiteMenu(() => this.initMainMenu());

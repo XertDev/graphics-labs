@@ -2,24 +2,15 @@ import * as THREE from "three";
 import * as Cannon from "cannon";
 
 import {BoardManager} from "./boards/BoardManager";
-import PlayerManager from "./players/PlayerManager";
 import AnimatedBodyObject from "../utils/AnimatedBodyObject";
 import AnimatedObject from "../utils/AnimatedObject";
-
-const keyAction = {
-    up: ["ArrowUp", "w"],
-    down: ["ArrowDown", "s"],
-    left: ["ArrowLeft", "a"],
-    right: ["ArrowRight", "d"],
-    bomb: ["Space"]
-};
+import ConnectionController from "../connection_controller/ConnectionController";
 
 export default class GameManager {
-    readonly MAP_WIDTH = 15;
-    readonly MAP_HEIGHT = 15;
+    readonly MAP_WIDTH = 8;
+    readonly MAP_HEIGHT = 8;
 
     private boardManager: BoardManager;
-    private playerManager: PlayerManager;
 
     private pressed = {
         up: false,
@@ -40,63 +31,48 @@ export default class GameManager {
     constructor(
         scene: THREE.Scene,
         world: Cannon.World,
-        isHost: boolean,
-        stones: Array<THREE.Object3D>,
-        boxes: Array<THREE.Object3D>,
+        camera: THREE.Camera,
+        private connectionController: ConnectionController,
+        private isHost: boolean,
         playerModel: AnimatedBodyObject,
         enemyModel: AnimatedBodyObject,
         eagleModel: AnimatedObject
     ) {
         this.boardManager = new BoardManager(
             this.MAP_WIDTH, this.MAP_HEIGHT,
-            scene, world,
-            stones, boxes,
-            eagleModel,
-            10, 10
+            scene, world, camera,
+            connectionController,
+            this.isHost,
+            playerModel, enemyModel,
+            eagleModel
         );
-
-        const playerStartPos = this.boardManager.getBoardCellCenter(6, 6);
-
-        const enemyStartPos = this.boardManager.getBoardCellCenter(3, 3);
-
-        this.playerManager = new PlayerManager(
-            scene,
-            world,
-            playerModel,
-            enemyModel,
-            playerStartPos,
-            enemyStartPos
-        );
-
-
-        world.addContactMaterial(new Cannon.ContactMaterial(this.playerManager.playerMaterial, this.boardManager.boardMaterial, {
-            friction: 0.002,
-            restitution: 0,
-
-        }))
     };
 
-    onKeyDown(event: KeyboardEvent): void {
-        for (const [action, keys] of Object.entries(keyAction)) {
-            if(keys.includes(event.key)) {
-                this.pressed[action] = true;
-                break;
+
+    public setup() {
+        return new Promise<void>(resolve => {
+            this.boardManager.generateBoard();
+            this.boardManager.createFullMap();
+            this.connectionController.subscribe("move", (data) => {
+                const {startX, startY, endX, endY} = data;
+                console.log(data);
+                this.boardManager.moveCheeker(startX, startY, endX, endY, false);
+            });
+
+            if(this.isHost) {
+                this.connectionController.sendToPeer("accept-connect", null);
             }
-        }
-    };
+            resolve();
 
-    onKeyUp(event: KeyboardEvent): void {
-        for (const [action, keys] of Object.entries(keyAction)) {
-            if(keys.includes(event.key)) {
-                this.pressed[action] = false;
-                break;
-            }
-        }
-    };
+        });
+    }
 
     update(elapsedTime: number) {
         this.prevPressed = this.pressed;
-        this.boardManager.update(elapsedTime)
-        this.playerManager.update(elapsedTime);
+        this.boardManager.update(elapsedTime);
+    }
+
+    onClick(event: MouseEvent): void {
+        this.boardManager.onClick(event);
     }
 }

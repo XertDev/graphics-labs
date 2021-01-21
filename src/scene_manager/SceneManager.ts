@@ -27,7 +27,7 @@ export class SceneManager {
         return nextScene.initResources().then(() => {
             nextScene.setup().then(() => {
                 this.sceneContainer = nextScene;
-            })
+            });
         });
     }
 

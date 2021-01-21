@@ -8,6 +8,8 @@ export class BoardGround {
     private islandGroup = new THREE.Group();
     private groundBody: Cannon.Body;
 
+    public map: THREE.Mesh[][] = [];
+
     readonly groundMaterial = new Cannon.Material("groundMaterial");
 
     public readonly boardWidth;
@@ -31,11 +33,22 @@ export class BoardGround {
         this.boardWidth = this.width * this.cellSize + (this.width-1)*this.cellSpace;
         this.boardHeight = this.height * this.cellSize + (this.height - 1)*this.cellSpace;
 
+        for(let i = 0; i < this.height; ++i) {
+            this.map[i] = [];
+        }
+
         this.buildIsland();
         this.buildCells();
         this.createGround();
 
         this.scene.add(this.islandGroup);
+    }
+
+    public setCellColor(x: number, y: number, color: string) {
+        this.map[y][x].material = new THREE.MeshLambertMaterial({
+            color: color,
+            side: THREE.DoubleSide
+        });
     }
 
     private buildIsland() {
@@ -79,6 +92,38 @@ export class BoardGround {
             line.position.set(0, this.depth/2, offsetZ);
             this.islandGroup.add(line);
             offsetZ += this.cellSpace + this.cellSize;
+        }
+
+        const geometry = new THREE.PlaneGeometry(this.cellSize, this.cellSize);
+        geometry.translate(-this.cellSpace/2, 0, -this.cellSpace/2);
+        geometry.rotateX(Math.PI/2);
+
+        const cellMaterialBlack = new THREE.MeshLambertMaterial({
+            color: "black",
+            side: THREE.DoubleSide
+        });
+        const cellMaterialWhite = new THREE.MeshLambertMaterial({
+            color: "white",
+            side: THREE.DoubleSide
+        });
+
+        const whiteCell = new THREE.Mesh(geometry, cellMaterialWhite);
+        const blackCell = new THREE.Mesh(geometry, cellMaterialBlack);
+
+        for(let i = 0; i < this.height; ++i) {
+            for(let j = 0; j < this.width; ++j) {
+                const center = this.getCellCenter(i, j);
+                let cell: THREE.Mesh;
+                if((i+j)%2 == 0) {
+                    cell = whiteCell.clone();
+                } else {
+                    cell = blackCell.clone();
+                }
+                const {x, y, z} = center;
+                cell.position.set(x, y + 0.1, z);
+                this.map[i].push(cell);
+                this.islandGroup.add(cell);
+            }
         }
     }
 
